@@ -5,7 +5,7 @@ Specifically, photos with GPS coordinations have correct timestamps, but for tho
 This app aims to fix this problem by overwriting DATE_TAKEN in the Android MediaStore for photos without GPS data, interpreting GPSTimeStamp as local time.
 
 # TODO
-- More beautiful GUI
-- Support manually editing timestamps
-- Some method to allow different timezones for different photos
-- Support manually specifying timezones
+- More beautiful & user-friendly GUI
+- Support manually selecting which photos to fix
+- Support manually editing timestamps of individual photos
+- Some way to automatically assign different timezones to different photos
