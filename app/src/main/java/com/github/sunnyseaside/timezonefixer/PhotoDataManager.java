@@ -16,12 +16,14 @@ import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.TimeZone;
 
 //No need to use ViewModel or LiveData for now, but might be a possibilty when adding filtering functionality
 //Caution: don't store Activity when switching to ViewModel
 public class PhotoDataManager {//} extends ViewModel {
     private Cursor cursor;
     private ContentResolver resolver;
+    private TimeZone timezone;
     private static int COL_ID=0;
     private static int COL_DISPLAY_NAME=1;
     private static int COL_DATE_ADDED=2;
@@ -29,12 +31,11 @@ public class PhotoDataManager {//} extends ViewModel {
     private static int COL_DATE_TAKEN=4;
     private static int COL_DATA=5;
     private final static String[]projection={Media._ID,Media.DISPLAY_NAME,Media.DATE_ADDED,Media.DATE_MODIFIED,Media.DATE_TAKEN,Media.DATA};
-    PhotoDataManager(Context context){
+    PhotoDataManager(Context context, TimeZone tz){
         resolver=context.getContentResolver();
+        timezone=tz;
 
-        ///todo custom sort order
         requery(null,null,Media.DATE_TAKEN/*+" DESC"*/);//Media.DEFAULT_SORT_ORDER);
-
     }
     ///todo Hide details
     public void requery(String selection,String[]selectionArgs,String orderby){
@@ -47,7 +48,7 @@ public class PhotoDataManager {//} extends ViewModel {
     public void fixAll(Handler handler, final ProgressListener listener){
         cursor.moveToFirst();
         while(!cursor.isAfterLast()){
-            PhotoData pd=new PhotoData(cursor,resolver);
+            PhotoData pd=new PhotoData();
             ExifInterface exif=pd.getExif();
             if(pd.shouldFix(exif)){
                 pd.doFix(exif);
@@ -70,17 +71,13 @@ public class PhotoDataManager {//} extends ViewModel {
     /**caution: only one query at once*/
     public PhotoData get(int pos){
         cursor.moveToPosition(pos);
-        return new PhotoData(cursor,resolver);
+        return new PhotoData();
     }
     public int getCount(){return cursor.getCount();}
-    static public class PhotoData extends Object{
-        private Cursor cursor;
-        private ContentResolver resolver;
+    public void setTimezone(TimeZone tz){timezone=tz;}
 
-        private PhotoData(Cursor c,ContentResolver r){
-            cursor=c;
-            resolver=r;
-        }
+    public class PhotoData extends Object{
+        private PhotoData(){}
         private Uri getUri(){
             return Uri.withAppendedPath(Media.EXTERNAL_CONTENT_URI, cursor.getString(COL_ID));
         }
@@ -118,11 +115,10 @@ public class PhotoDataManager {//} extends ViewModel {
         }
         public void doFix(){doFix(getExif());}
         private void doFix(ExifInterface exif){
-            //long date=getDateTaken()-x*3600*1000;///todo custom timezone
             String dateStr=exif.getAttribute(ExifInterface.TAG_DATETIME_ORIGINAL);
             if(dateStr!=null) {
                 SimpleDateFormat fmt = new SimpleDateFormat("yyyy:MM:dd HH:mm:ss");
-                //fmt.setTimeZone()
+                fmt.setTimeZone(timezone);
                 try {
                     Date date = fmt.parse(dateStr);
                     setDateTaken(date.getTime());

@@ -21,6 +21,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import java.util.Date;
+import java.util.TimeZone;
 
 /**
  * An activity representing a list of Items. This activity
@@ -44,6 +45,8 @@ public class ItemListActivity extends AppCompatActivity {
     private Thread fixall_thread;
     private RecyclerView recyclerView;
 
+    private TimeZone timezone;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,11 +57,11 @@ public class ItemListActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         toolbar.setTitle(getTitle());
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        FloatingActionButton fabSave = (FloatingActionButton) findViewById(R.id.fab_save);
 
         final Context context=this;
         final Handler handler=new Handler(Looper.getMainLooper());
-        fab.setOnClickListener(new View.OnClickListener() {
+        fabSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 final ProgressDialog dialog=new ProgressDialog(context);///todo deprecated
@@ -88,7 +91,23 @@ public class ItemListActivity extends AppCompatActivity {
             }
         });
 
-        //ActionBar
+        timezone=TimeZone.getDefault();
+        FloatingActionButton fabTimezone=findViewById(R.id.fab_timezone);
+        fabTimezone.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AlertDialog.Builder builder=new AlertDialog.Builder(context);
+                builder.setTitle(R.string.dlg_timezone);
+                final String[]timezones=TimeZone.getAvailableIDs();
+                builder.setItems(timezones, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        manager.setTimezone(TimeZone.getTimeZone(timezones[i]));
+                    }
+                });
+                builder.show();
+            }
+        });
 
         if (findViewById(R.id.item_detail_container) != null) {
             // The detail container view will be present only in the
@@ -119,7 +138,7 @@ public class ItemListActivity extends AppCompatActivity {
     }
 
     private void doRead(){
-        manager=new PhotoDataManager(this);
+        manager=new PhotoDataManager(this,timezone);
 
         recyclerView = findViewById(R.id.item_list);
         assert recyclerView != null;

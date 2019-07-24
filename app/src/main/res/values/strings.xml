@@ -23,4 +23,5 @@
     <string name="dlg_query">Query parameters</string>
     <string name="lbl_filter">Filter</string>
     <string name="lbl_orderby">Order by</string>
+    <string name="dlg_timezone">Choose timezone</string>
 </resources>
