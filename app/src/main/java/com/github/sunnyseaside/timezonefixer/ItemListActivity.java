@@ -3,6 +3,7 @@ package com.github.sunnyseaside.timezonefixer;
 import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -10,14 +11,13 @@ import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import java.util.Date;
@@ -42,6 +42,7 @@ public class ItemListActivity extends AppCompatActivity {
     private final static int REQUEST_CODE_READ=1;
 
     private Thread fixall_thread;
+    private RecyclerView recyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -117,12 +118,56 @@ public class ItemListActivity extends AppCompatActivity {
         }
     }
 
-        private void doRead(){
+    private void doRead(){
         manager=new PhotoDataManager(this);
 
-        View recyclerView = findViewById(R.id.item_list);
+        recyclerView = findViewById(R.id.item_list);
         assert recyclerView != null;
         setupRecyclerView((RecyclerView) recyclerView);
+    }
+    @Override public boolean onCreateOptionsMenu(Menu menu){
+        getMenuInflater().inflate(R.menu.main,menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        AlertDialog.Builder builder;
+        switch(item.getItemId()){
+            case R.id.menu_filter_order:
+                LayoutInflater inflater=getLayoutInflater();
+                View view=inflater.inflate(R.layout.dialog_query,null);
+                builder=new AlertDialog.Builder(this);
+                builder.setView(view);//R.layout.dialog_query);
+                final EditText txtFilter=view.findViewById(R.id.txtFilter);
+                final EditText txtOrder=view.findViewById(R.id.txtOrder);
+
+                builder.setTitle(R.string.dlg_query);
+                builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        manager.requery(txtFilter.getText().toString(),null,txtOrder.getText().toString());
+                        recyclerView.getAdapter().notifyDataSetChanged();
+                    }
+                });
+                builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {}
+                });
+                builder.show();
+                return true;
+            case R.id.menu_about:
+                builder=new AlertDialog.Builder(this);
+                builder.setTitle(R.string.about_title);
+                builder.setMessage(R.string.about_text);
+                builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {}
+                });
+                builder.show();
+                return true;
+        }
+        return false;
     }
 
     private void setupRecyclerView(@NonNull RecyclerView recyclerView) {
@@ -178,8 +223,7 @@ public class ItemListActivity extends AppCompatActivity {
         @Override
         public void onBindViewHolder(final ViewHolder holder, int position) {
             PhotoDataManager.PhotoData pd=manager.get(position);
-            //Instant instant= Instant.ofEpochMill(pd.getDateAdded());
-            //Date date=new Date(pd.getDateAdded()*1000);//TODO better way?
+
             Date date=new Date(pd.getDateTaken());
             holder.mIdView.setText(pd.getName());
             holder.mContentView.setText((pd.shouldFix()?"Y":"N")+date.toString());

@@ -1,4 +1,26 @@
 <resources>
     <string name="app_name">timezoneFixer</string>
     <string name="title_item_detail">Item Detail</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="about_title">About</string>
+    <string name="about_text">Copyright © 2019 SunnySeaside
+        \n\n
+        This program is free software: you can redistribute it and/or modify
+        it under the terms of the GNU General Public License version 3,
+        as published by the Free Software Foundation.
+        \n\n
+        This program is distributed in the hope that it will be useful,
+        but WITHOUT ANY WARRANTY; without even the implied warranty of
+        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+        GNU General Public License for more details.
+        \n\n
+        You should have received a copy of the GNU General Public License
+        along with this program.  If not, see &lt;https://www.gnu.org/licenses/&gt;.
+    </string>
+    <string name="menu_about">About...</string>
+    <string name="menu_filter_order">Filter/Order...</string>
+    <string name="dlg_query">Query parameters</string>
+    <string name="lbl_filter">Filter</string>
+    <string name="lbl_orderby">Order by</string>
 </resources>

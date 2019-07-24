@@ -28,12 +28,17 @@ public class PhotoDataManager {//} extends ViewModel {
     private static int COL_DATE_MODIFIED=3;
     private static int COL_DATE_TAKEN=4;
     private static int COL_DATA=5;
+    private final static String[]projection={Media._ID,Media.DISPLAY_NAME,Media.DATE_ADDED,Media.DATE_MODIFIED,Media.DATE_TAKEN,Media.DATA};
     PhotoDataManager(Context context){
         resolver=context.getContentResolver();
-        String[]projection={Media._ID,Media.DISPLAY_NAME,Media.DATE_ADDED,Media.DATE_MODIFIED,Media.DATE_TAKEN,Media.DATA};
-        ///todo custom sort order
-        cursor=resolver.query(Media.EXTERNAL_CONTENT_URI,projection,null,null,Media.DATE_TAKEN/*+" DESC"*/);//Media.DEFAULT_SORT_ORDER);
 
+        ///todo custom sort order
+        requery(null,null,Media.DATE_TAKEN/*+" DESC"*/);//Media.DEFAULT_SORT_ORDER);
+
+    }
+    ///todo Hide details
+    public void requery(String selection,String[]selectionArgs,String orderby){
+        cursor=resolver.query(Media.EXTERNAL_CONTENT_URI,projection,selection,selectionArgs,orderby);
     }
     public interface ProgressListener{
         public void onProgress(int pos);
